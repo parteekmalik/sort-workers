@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Merge Sort Visualizer</title>
+</head>
+<body class="bg-gray-900 min-h-screen p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-4xl font-bold text-white mb-8 text-center">Merge Sort Visualizer</h1>
+        
+        <div class="flex justify-center gap-4 mb-8">
+            <button id="generateArray" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+                Generate New Array
+            </button>
+            <button id="startSort" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
+                Start Merge Sort
+            </button>
+        </div>
+
+        <div id="arrayContainer" class="h-96 bg-gray-800 rounded-lg p-4 flex items-end justify-center gap-1">
+            <!-- Bars will be generated here -->
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
