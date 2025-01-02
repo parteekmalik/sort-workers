@@ -4,6 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .bar {
+            transition: left var(--animation-speed) ease;
+            transform-origin: bottom;
+            background-color: #4B5563; /* default gray color */
+        }
+        
+        .bar:hover {
+            filter: brightness(1.2);
+        }
+        
+        .bar-comparing {
+            background-color: #EF4444 !important; /* red color */
+        }
+        
+        .bar-moving {
+            background-color: #FFD700 !important; /* yellow color */
+        }
+        
+        .bar-sorted {
+            background-color: #10B981 !important; /* green color */
+        }
+        
+        @keyframes compareHighlight {
+            0% { transform: scaleY(1); }
+            50% { transform: scaleY(1.1); }
+            100% { transform: scaleY(1); }
+        }
+        
+        .comparing {
+            animation: compareHighlight var(--animation-speed) ease;
+        }
+    </style>
     <title>Merge Sort Visualizer</title>
 </head>
 <body class="bg-gray-900 min-h-screen p-8">
@@ -11,18 +44,31 @@
         <h1 class="text-4xl font-bold text-white mb-8 text-center">Merge Sort Visualizer</h1>
         
         <div class="flex justify-center gap-4 mb-8">
-            <button id="generateArray" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+            <button id="generateArray" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50 disabled:cursor-not-allowed">
                 Generate New Array
             </button>
-            <button id="startSort" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
+            <button id="startSort" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded disabled:opacity-50 disabled:cursor-not-allowed">
                 Start Merge Sort
             </button>
+            <div class="flex items-center gap-2">
+                <label for="speedControl" class="text-white">Speed:</label>
+                <input 
+                    type="range" 
+                    id="speedControl" 
+                    min="50" 
+                    max="500" 
+                    value="200" 
+                    class="w-64 h-3 bg-gray-600 rounded-lg appearance-none cursor-pointer shadow-lg transition duration-300 ease-in-out hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                >
+                <span id="speedValue" class="text-white min-w-[3rem]">50ms</span>
+            </div>
         </div>
 
-        <div id="arrayContainer" class="h-96 bg-gray-800 rounded-lg p-4 flex items-end justify-center gap-1">
+        <div id="arrayContainer" class="relative h-96 bg-gray-800 rounded-lg flex items-end justify-center">
             <!-- Bars will be generated here -->
         </div>
     </div>
+    <script src="util.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

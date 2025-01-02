@@ -1,99 +1,91 @@
-let array = [];
-const arraySize = 50;
-let animationSpeed = 50;
-
-// Get DOM elements
-const arrayContainer = document.getElementById('arrayContainer');
-const generateArrayBtn = document.getElementById('generateArray');
-const startSortBtn = document.getElementById('startSort');
-
 // Generate random array
 function generateArray() {
-    array = [];
+    const arrayContainer = document.getElementById('arrayContainer');
+    const array = [];
     arrayContainer.innerHTML = '';
-    
-    for (let i = 0; i < arraySize; i++) {
-        const value = Math.floor(Math.random() * 100) + 1;
-        array.push(value);
-        
+
+    // Create a set to ensure uniqueness
+    const uniqueValues = Array.from({ length: arraySize }, (_,index) => (100 / arraySize) * index).sort((a,b) => Math.random() - 0.5);
+
+    // Convert the set to an array
+    const uniqueArray = Array.from(uniqueValues);
+
+    uniqueArray.forEach((value, i) => {
         const bar = document.createElement('div');
         bar.classList.add('bar');
         bar.style.height = `${value}%`;
-        bar.style.width = `${100 / arraySize}%`;
-        bar.style.backgroundColor = '#4B5563'; // gray-600
-        bar.style.transition = 'all 0.2s ease';
+        bar.style.width = `calc(${100 / arraySize}% - 2px)`;
+        bar.style.margin = '2px';
+        bar.style.position = 'absolute';
+        bar.style.left = `${(i * 100) / arraySize}%`;
         arrayContainer.appendChild(bar);
+    });
+}
+
+// Iterative Merge Sort implementation
+async function iterativeMergeSort() {
+    const bars = Array.from(document.getElementsByClassName('bar'));
+    const n = bars.length;
+
+    // Start with subarrays of size 1, then 2, 4, 8, etc.
+    for (let size = 1; size < n; size = size * 2) {
+        // Merge subarrays of size 'size'
+        for (let leftStart = 0; leftStart < n - 1; leftStart += 2 * size) {
+            const mid = Math.min(leftStart + size - 1, n - 1);
+            const rightEnd = Math.min(leftStart + 2 * size - 1, n - 1);
+
+            // Merge the subarrays
+            bars.sort((a, b) => getNum(a, 'left') - getNum(b, 'left'));
+            await merge(bars, leftStart, mid, rightEnd);
+        }
     }
 }
 
-// Merge sort implementation
-async function mergeSort(arr, start, end) {
-    if (start >= end) return;
-    
-    const mid = Math.floor((start + end) / 2);
-    await mergeSort(arr, start, mid);
-    await mergeSort(arr, mid + 1, end);
-    await merge(arr, start, mid, end);
-}
+async function merge(bars, start, mid, end) {
+    const leftArray = bars.slice(start, mid + 1);
+    const rightArray = bars.slice(mid + 1, end + 1);
 
-async function merge(arr, start, mid, end) {
-    const leftArray = arr.slice(start, mid + 1);
-    const rightArray = arr.slice(mid + 1, end + 1);
-    
     let i = 0, j = 0, k = start;
-    const bars = document.getElementsByClassName('bar');
 
     while (i < leftArray.length && j < rightArray.length) {
-        // Highlight comparing elements
-        bars[start + i].style.backgroundColor = '#EF4444'; // red-500
-        bars[mid + 1 + j].style.backgroundColor = '#EF4444'; // red-500
+        const first = leftArray[i], second = rightArray[j];
         
-        await new Promise(resolve => setTimeout(resolve, animationSpeed));
+        // Add comparing class
+        first.classList.add('bar-comparing');
+        second.classList.add('bar-comparing');
 
-        if (leftArray[i] <= rightArray[j]) {
-            arr[k] = leftArray[i];
-            bars[k].style.height = `${leftArray[i]}%`;
-            bars[k].style.backgroundColor = '#10B981'; // green-500
+        if (getNum(leftArray[i], 'height') <= getNum(rightArray[j], 'height')) {
             i++;
         } else {
-            arr[k] = rightArray[j];
-            bars[k].style.height = `${rightArray[j]}%`;
-            bars[k].style.backgroundColor = '#10B981'; // green-500
+            second.style.left = `${(k * 100) / arraySize}%`;
+            second.classList.remove('bar-comparing');
+            second.classList.add('bar-moving');
+            
+            setTimeout(() => {
+                second.classList.remove('bar-moving');
+            }, animationSpeed);
+
+            for (let barIndex = i; barIndex < leftArray.length; barIndex++) {
+                leftArray[barIndex].classList.add('bar-sorted');
+                setTimeout(() => {
+                    leftArray[barIndex].classList.remove('bar-sorted');
+                }, animationSpeed);
+                leftArray[barIndex].style.left = `${getNum(leftArray[barIndex], 'left') + 100 / arraySize}%`;
+            }
             j++;
         }
         k++;
-        
-        await new Promise(resolve => setTimeout(resolve, animationSpeed));
-    }
 
-    while (i < leftArray.length) {
-        arr[k] = leftArray[i];
-        bars[k].style.height = `${leftArray[i]}%`;
-        bars[k].style.backgroundColor = '#10B981'; // green-500
-        i++;
-        k++;
-        await new Promise(resolve => setTimeout(resolve, animationSpeed));
-    }
+        await slowDown(100);
 
-    while (j < rightArray.length) {
-        arr[k] = rightArray[j];
-        bars[k].style.height = `${rightArray[j]}%`;
-        bars[k].style.backgroundColor = '#10B981'; // green-500
-        j++;
-        k++;
-        await new Promise(resolve => setTimeout(resolve, animationSpeed));
+        // Remove comparing class
+        first.classList.remove('bar-comparing');
+        second.classList.remove('bar-comparing');
     }
 }
 
 // Event listeners
 generateArrayBtn.addEventListener('click', generateArray);
-startSortBtn.addEventListener('click', async () => {
-    startSortBtn.disabled = true;
-    generateArrayBtn.disabled = true;
-    await mergeSort(array, 0, array.length - 1);
-    startSortBtn.disabled = false;
-    generateArrayBtn.disabled = false;
-});
 
 // Generate initial array
 generateArray();
