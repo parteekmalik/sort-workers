@@ -1,6 +1,6 @@
 document.documentElement.style.setProperty('--animation-speed', '200ms');
 
-const arraySize = 100;
+let arraySize = 400;
 let animationSpeed = 200;
 
 // Get DOM elements
@@ -38,7 +38,7 @@ startSortBtn.addEventListener('click', async () => {
 speedControl.addEventListener('input', (e) => {
     // Convert to number and ensure it's within bounds
     const newSpeed = parseInt(e.target.value);
-    animationSpeed = Math.max(50, Math.min(500, newSpeed)); // Clamp between 50 and 500
+    animationSpeed = Math.max(20 , Math.min(500, newSpeed)); // Clamp between 50 and 500
     
     // Update display and CSS variable
     speedValue.textContent = `${animationSpeed}ms`;
@@ -47,3 +47,44 @@ speedControl.addEventListener('input', (e) => {
 
 // Update the initial speed value display
 speedValue.textContent = `${animationSpeed}ms`;
+
+async function merge(bars, start, mid, end) {
+    const leftArray = bars.slice(start, mid + 1);
+    const rightArray = bars.slice(mid + 1, end + 1);
+
+    let i = 0, j = 0, k = start;
+
+    while (i < leftArray.length && j < rightArray.length) {
+        const first = leftArray[i], second = rightArray[j];
+        
+        first.classList.add('bar-comparing');
+        second.classList.add('bar-comparing');
+
+        if (getNum(leftArray[i], 'height') <= getNum(rightArray[j], 'height')) {
+            i++;
+        } else {
+            second.style.left = `${(k * 100) / arraySize}%`;
+            second.classList.remove('bar-comparing');
+            second.classList.add('bar-moving');
+            
+            setTimeout(() => {
+                second.classList.remove('bar-moving');
+            }, animationSpeed);
+
+            for (let barIndex = i; barIndex < leftArray.length; barIndex++) {
+                leftArray[barIndex].classList.add('bar-sorted');
+                setTimeout(() => {
+                    leftArray[barIndex].classList.remove('bar-sorted');
+                }, animationSpeed);
+                leftArray[barIndex].style.left = `${getNum(leftArray[barIndex], 'left') + 100 / arraySize}%`;
+            }
+            j++;
+        }
+        k++;
+
+        await new Promise(resolve => setTimeout(resolve, animationSpeed/10));
+
+        first.classList.remove('bar-comparing');
+        second.classList.remove('bar-comparing');
+    }
+}
