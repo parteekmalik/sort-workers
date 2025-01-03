@@ -59,7 +59,10 @@ async function merge(bars, start, mid, end) {
         
         first.classList.add('bar-comparing');
         second.classList.add('bar-comparing');
-
+        setTimeout(() => {
+            first.classList.remove('bar-comparing');
+            second.classList.remove('bar-comparing');
+        }, animationSpeed);
         if (getNum(leftArray[i], 'height') <= getNum(rightArray[j], 'height')) {
             i++;
         } else {
@@ -81,10 +84,7 @@ async function merge(bars, start, mid, end) {
             j++;
         }
         k++;
-
-        await new Promise(resolve => setTimeout(resolve, animationSpeed/10));
-
-        first.classList.remove('bar-comparing');
-        second.classList.remove('bar-comparing');
+        await slowDown(animationSpeed/10);
+        // await new Promise(resolve => setTimeout(resolve, animationSpeed/10));
     }
 }
